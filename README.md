@@ -14,4 +14,4 @@ foo@bar:~$ pip3 install bing_image_downloader==1.0.2
 foo@bar:~$ pip3 show bing_image downloader
 ```
 
-open the dir in which the bing_imaage_downloader is stored in and replace the bing.py file with replacement_bing1-0-2.py. Then uncomment the downloading function in run.py.
+open the `dir` in which the `bing_imaage_downloader` is stored in and replace the `bing.py` file with `replacement_bing1-0-2.py.` Then uncomment the downloading function in `run.py.`
