@@ -8,15 +8,13 @@ import os
 # put list of objects here
 
 lim  = "10000"
-pets = ["Cat","Dog"]
+categories = ["Cat","Dog"]
 
-for pet in pets:
-    downloader.download(pet, limit=lim, adult_filter_off=True, force_replace=False)
+for category in categories:
+    downloader.download(category, limit=lim, adult_filter_off=True, force_replace=False)
 
 #######################################################
 
 #summary of downloads
-
-for pet in pets:
+for category in categories:
     print ('{} Images of {}'.format(lim,pet))
-
