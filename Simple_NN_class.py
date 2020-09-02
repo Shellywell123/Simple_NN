@@ -135,7 +135,7 @@ class Simple_NN():
             for image in os.listdir(training_data_dir+'/'+subdir):    
 
                 #is statment is only here as I didnt want to train 10k images so i limited it to 100 per category
-                if os.listdir(training_data_dir+'/'+subdir).index(image) >= 100:
+                if os.listdir(training_data_dir+'/'+subdir).index(image) >= 1000:
                     break
                 else:            
                     x = self.resize_image(training_data_dir+'/'+subdir+'/'+image,pixel_dim)
@@ -283,7 +283,7 @@ class Simple_NN():
 
     def model(self,X_train,Y_train,num_iterations=2000,learning_rate=0.5):
         """
-        INCOMPLETE
+        will train model
         """
 
         w_dim = X_train.shape[0]
@@ -299,7 +299,7 @@ class Simple_NN():
 
         return w,b
 
-    def test_image(self,image,w,b):
+    def test_image(self,image,w,b,image_category):
         """
         test a model with an image
         """
@@ -308,12 +308,13 @@ class Simple_NN():
         Y_training_data = np.empty((1,1))
 
         x_test = self.resize_image(image,pixel_dim)/255
-        y_test = np.array([1]).T
-
         key = self.get_key('dataset/bing')
+
+        y_val  = list(key.keys())[list(key.values()).index(image_category)]
+        y_test = np.array([y_val]).T
 
         print('#'*15)
         Y_prediction_test = self.preidict_output(x_test,w,b)
-        print("test accuracy: {} %".format(100 - np.mean(np.abs(Y_prediction_test - y_test)) * 100))
-        print('predicted as {}'.format(key[int(np.squeeze(Y_prediction_test))]))
+        acc = 100 - np.mean(np.abs(Y_prediction_test - y_test)) * 100
+        print("test image predicted as {} with {} % accuracy".format(key[int(np.squeeze(Y_prediction_test))],acc))
         self.show_image(image)
