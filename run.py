@@ -18,5 +18,5 @@ X_training_data,Y_training_data=nn.load_h5_training_data('training_data.h5')
 w,b =nn.model(X_training_data,Y_training_data,num_iterations=2000,learning_rate=0.5)
 
 # test model with images
-nn.test_image('test_image.jpg', w,b,'Cat')
-nn.test_image('test_image2.jpg',w,b,'Dog')
+nn.test_image('test_images/test_image.jpg', w,b,'Cat')
+nn.test_image('test_images/test_image2.jpg',w,b,'Dog')
