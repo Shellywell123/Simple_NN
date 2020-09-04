@@ -1,21 +1,19 @@
-
-import numpy as np
-import os
-import cv2 as cv
-
-#c imports
-import numpy as np
 import matplotlib.pyplot as plt
-import h5py
-import scipy
-from PIL import Image
 from scipy import ndimage
+from PIL import Image
+import numpy as np
+import cv2 as cv
+import scipy
+import h5py
+import os
 
+###########################################
+# Start of class
 ###########################################
 
 class Simple_NN():
     """
-    first go a making a class for building Nueral Networks's from scratch
+    first go at making a class for building Nueral Networks's from scratch
     """
 
     def __init__(self):
@@ -54,12 +52,8 @@ class Simple_NN():
         """
         uses bing_image_downloader==1-0-2 to download images 
         """
-
-        # MOVE THIS FILE INTO A SEPERATE LOCATION ON YOUR MACHINE
         from bing_image_downloader import downloader
         
-        #######################################################
-
         # put list of objects here
 
         lim        = str(num_of_images_per_category)
@@ -74,34 +68,18 @@ class Simple_NN():
         for category in categories:
             print ('{} Images of {}'.format(lim,pet))
 
-    def complete_training_data_(self):
-        """
-        INCOMPLETE
-        """
-        self.download_training_data(self)
-        pass
-
 
     def resize_image(self,image,size):
         """
         resize an image
         """
-        #self.show_image(image)
         img = Image.open(image)
         img = img.resize((size,size))
         arr = np.array(img)
         
-        #img.show()
-
-        #convert to gray scale
-        #if len(arr.shape) > 2:
-         # arr = np.mean(arr, 2)
-
-       #flatten 
+        #flatten 
         arr = arr.flatten()
         arr=arr.reshape((size*size*3),-1)
-        #print(arr.shape)
-        #print('-----')
         return arr
 
     def show_image(self,image):
@@ -114,9 +92,7 @@ class Simple_NN():
 
     def format_training_data_as_h5(self,training_data_dir):
         """
-        INCOMPLETE
-
-        1st thing is to convert images to a vector using hpy5
+        converts images to a vector using hpy5
         """
         pixel_dim=64
         X_training_data = np.empty((pixel_dim*pixel_dim*3,1))
@@ -128,13 +104,14 @@ class Simple_NN():
 
         for subdir in os.listdir(training_data_dir):
             # print name and size of each dataset
-            index=os.listdir(training_data_dir).index(subdir)
-           # key[index] = subdir
-            #print (subdir,len(os.listdir(training_data_dir+'/'+subdir)))
+            print (subdir,len(os.listdir(training_data_dir+'/'+subdir)))
 
+            index=os.listdir(training_data_dir).index(subdir)
+            # key[index] = subdir
+            
             for image in os.listdir(training_data_dir+'/'+subdir):    
 
-                #is statment is only here as I didnt want to train 10k images so i limited it to 100 per category
+                #if statment is only here as I didnt want to train 10k images so i limited it per category
                 if os.listdir(training_data_dir+'/'+subdir).index(image) >= 1000:
                     break
                 else:            
@@ -142,10 +119,7 @@ class Simple_NN():
                     X_training_data = np.column_stack((X_training_data, x))
                     y = np.array([index]).T
                     Y_training_data = np.column_stack((Y_training_data, y))
-                   
-
-                    #print(image,x.shape,X_training_data.shape)
-
+                    
                 
         #deletes first empty data set that was created when the array was initalised
         X_training_data = np.delete(X_training_data,0,1)
@@ -157,7 +131,6 @@ class Simple_NN():
 
         #print(X_training_data,X_training_data.shape)
         
-
         hf = h5py.File('training_data.h5', 'w')
         hf.create_dataset('X_train',data=X_training_data)
         hf.create_dataset('Y_train',data=Y_training_data)
@@ -247,12 +220,17 @@ class Simple_NN():
         
             # save costs values every 100 vals
             if i % 100 == 0:
-                costs.append(cost)
+                costs.append([i,cost])
         
     
             #save prarams and gradients for future use
             params = {"w": w,"b": b}
             gradients = {"dw": dw,"db": db}
+
+        plt.plot(cost[0],costs[1])
+        plt.xlabel('num or num_iterations')
+        plt.ylabel('cost')
+        plt.savefig('cost.png')
         
         return params, gradients, costs
 
@@ -285,7 +263,6 @@ class Simple_NN():
         """
         will train model
         """
-
         w_dim = X_train.shape[0]
         w,b = self.initalize_params_0(w_dim)
 
@@ -302,6 +279,7 @@ class Simple_NN():
     def test_image(self,image,w,b,image_category):
         """
         test a model with an image
+
         """
         pixel_dim=64
         X_training_data = np.empty((pixel_dim*pixel_dim*3,1))
@@ -318,3 +296,7 @@ class Simple_NN():
         acc = 100 - np.mean(np.abs(Y_prediction_test - y_test)) * 100
         print("test image predicted as {} with {} % accuracy".format(key[int(np.squeeze(Y_prediction_test))],acc))
         self.show_image(image)
+
+###########################################
+# End of Class
+###########################################
