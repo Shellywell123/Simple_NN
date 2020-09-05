@@ -50,7 +50,7 @@ class Simple_NN():
         return key
     
 
-    def format_training_data_as_h5(self,training_data_dir):
+    def format_training_data_as_h5(self,training_data_dir,filename):
         """
         converts images to a vector using hpy5
         """
@@ -61,6 +61,9 @@ class Simple_NN():
         #print(X_training_data,Y_training_data)
 
         #key = {}
+
+        if not os.path.exists('h5_files'):
+            os.makedirs('h5_files')
 
         for subdir in os.listdir(training_data_dir):
             # print name and size of each dataset
@@ -92,7 +95,7 @@ class Simple_NN():
 
         #print(X_training_data,X_training_data.shape)
         
-        hf = h5py.File('training_data.h5', 'w')
+        hf = h5py.File(filename, 'w')
         hf.create_dataset('X_train',data=X_training_data)
         hf.create_dataset('Y_train',data=Y_training_data)
         hf.close()
@@ -101,6 +104,9 @@ class Simple_NN():
         """
         save a models params
         """
+        if not os.path.exists('h5_files'):
+            os.makedirs('h5_files')
+            
         hf = h5py.File(model_file,'w')
         hf.create_dataset('w',data=w)
         hf.create_dataset('b',data=b)
