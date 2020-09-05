@@ -23,7 +23,7 @@ I recieved some runtime warnings therfore use the flag `-W ignore`.
 ```bash
 foo@bar:~$ python3 -W ignore run.py
 ```
-## For downloading training data
+## For downloading and formating training data
 The code in its current state does not download the training data nor is the data stored on the git, due to file size restrictions. However this can easily be done with supplied code in a few steps.\\
 
 #### 1st install bing_image_downloader v1.0.2
@@ -39,6 +39,38 @@ Open the `dir` in which the `bing_imaage_downloader` is stored in and replace th
 
 #### 3rd Call the `download_training_data()` funtion
 Then uncomment the `download_training_data()` function in `run.py.`
+```python
+nn = Simple_NN()
 
+# download training data from bing
+num_of_images_per_category = 10000
+list_of_categories         = ['Cat','Dog']
+nn. download_training_data(num_of_images_per_category,list_of_categories)
+
+# generate .h5 formated training data file
+nn.format_training_data_as_h5('dataset/bing')
+```
+
+## For importing training data and making/saving a model
+```python
+# load trining data in from .h5 file
+X_training_data,Y_training_data=nn.load_h5_training_data('training_data.h5')
+
+# generate model and save params for testing the model
+w,b =nn.model(X_training_data,Y_training_data,num_iterations=2000,learning_rate=0.5)
+nn.save_model_as_h5('model_10k.h5',w,b)
+```
+
+## For loading and testing a model
+```python
+# load in model params
+w,b = nn.load_h5_model('model_10k.h5')
+
+# test model with images
+nn.test_image('test_images/test_image.jpg', w,b,'Cat')
+nn.test_image('test_images/test_image3.jpg',w,b,'Dog')
+
+```
 ## Current Results
 I have passed several of cats
+
