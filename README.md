@@ -9,7 +9,7 @@ The program uses the sigmoid activation function to classisfy an image into one 
 
 ## Install
 ```bash
-foo@bar:~$ git clone wwww.githb.com/Shellywell123/Simple_NN
+foo@bar:~$ git clone wwww.github.com/Shellywell123/Simple_NN
 ```
 ```bash
 foo@bar:~$ cd Simple_NN/
@@ -74,5 +74,5 @@ nn.test_image('test_images/test_image3.jpg',w,b,'Dog')
 
 ```
 ## Current Results
-I have passed several of cats
+I have passed several images of cats and dogs and thus far it only identifies cats correctly, this may be due to an error in the code, a bad testing sample or due to the simplicity of the NN itself. I will eventually add more hidden layers and deeper learning to the `Simple_NN` class.
 
