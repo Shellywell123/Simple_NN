@@ -1,5 +1,5 @@
 # Simple_NN
-A small python 3 project written as a stepping stone for learning the basics of convolution neural networks for another repo [Pykadex](www.github.com/sudini1412/Pykadex). The project uses 10,000 images of cats and dogs downloaded from bing and uses them to train a simple nueral network. I have tried to write the class as flexible as possible so that it can be used to test any two categories of images not just cats and dogs.
+A small Python 3 project written as a stepping stone for learning the basics of convolution neural networks for another repo [Pykadex](https://github.com/Sudini1412/PykaDex). The project uses 10,000 images of cats and dogs downloaded from bing and uses them to train a simple nueral network. I have tried to write the class as flexible as possible so that it can be used to test any two categories of images not just cats and dogs.
 
 ![screenshot](screenshot.png)
 
@@ -9,7 +9,7 @@ The program uses the sigmoid activation function to classisfy an image into one 
 
 ## Install
 ```bash
-foo@bar:~$ git clone wwww.github.com/Shellywell123/Simple_NN
+foo@bar:~$ git clone https://github.com/Shellywell123/Simple_NN
 ```
 ```bash
 foo@bar:~$ cd Simple_NN/
@@ -38,7 +38,7 @@ foo@bar:~$ pip3 show bing_image downloader
 Open the `dir` in which the `bing_imaage_downloader` is stored in and replace the `bing.py` file with `replacement_bing1-0-2.py.` 
 
 #### 3rd Call the `download_training_data()` funtion
-Then uncomment the `download_training_data()` function in `run.py.`
+Then uncomment and run the following code in `run.py.`
 ```python
 nn = Simple_NN()
 
