@@ -6,7 +6,7 @@ nn = Simple_NN()
 # download training data from bing
 #num_of_images_per_category = 10000
 #list_of_categories         = ['Cat','Dog']
-#nn. download_training_data(num_of_images_per_category,list_of_categories)
+#nn.download_training_data(num_of_images_per_category,list_of_categories)
 
 # generate .h5 formated training data file
 #nn.format_training_data_as_h5('dataset/bing')

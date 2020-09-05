@@ -45,7 +45,7 @@ nn = Simple_NN()
 # download training data from bing
 num_of_images_per_category = 10000
 list_of_categories         = ['Cat','Dog']
-nn. download_training_data(num_of_images_per_category,list_of_categories)
+nn.download_training_data(num_of_images_per_category,list_of_categories)
 
 # generate .h5 formated training data file
 nn.format_training_data_as_h5('dataset/bing')
@@ -53,6 +53,7 @@ nn.format_training_data_as_h5('dataset/bing')
 
 ## For importing training data and making/saving a model
 ```python
+nn = Simple_NN()
 # load trining data in from .h5 file
 X_training_data,Y_training_data=nn.load_h5_training_data('training_data.h5')
 
@@ -63,6 +64,7 @@ nn.save_model_as_h5('model_10k.h5',w,b)
 
 ## For loading and testing a model
 ```python
+nn = Simple_NN()
 # load in model params
 w,b = nn.load_h5_model('model_10k.h5')
 
