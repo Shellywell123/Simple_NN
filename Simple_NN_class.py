@@ -18,35 +18,9 @@ class Simple_NN():
 
     def __init__(self):
         """
-        class initialiser
+        class initialiser yet to do anything
         """
         pass
-
-    
-    def sigmoid(self,z):
-        """
-        activation function for binary outout between 0 and 1
-        - use tanh for output between -1 and 1
-        """
-        s = 1/(1+np.exp(-z))
-        return s
-
-    def relu(self,z):
-        """
-        linear activator
-        """
-        r=max(0,x)
-        return r
-
-    def unpack_image_data(self,image):
-        """
-        INCOMPLETE
-        """
-        archive = h5py.File('test.h5', 'w')
-        archive.create_dataset('/array', data=array)
-        archive.close()
-                
-        return 0
 
     def download_training_data(self,num_of_images_per_category,list_of_categories):
         """
@@ -54,41 +28,27 @@ class Simple_NN():
         """
         from bing_image_downloader import downloader
         
-        # put list of objects here
-
         lim        = str(num_of_images_per_category)
         categories = list_of_categories
 
         for category in categories:
             downloader.download(category, limit=lim, adult_filter_off=True, force_replace=False)
-
-        #######################################################
-
-        #summary of downloads
-        for category in categories:
+            #summary of downloads
             print ('{} Images of {}'.format(lim,pet))
 
-
-    def resize_image(self,image,size):
+    def get_key(self,training_data_dir):
         """
-        resize an image
+        gains dictionary to put catergories to indexes
+        -currently gathered from dir structure of your traingin data,
+        -want to store in h5 file eventually 
         """
-        img = Image.open(image)
-        img = img.resize((size,size))
-        arr = np.array(img)
-        
-        #flatten 
-        arr = arr.flatten()
-        arr=arr.reshape((size*size*3),-1)
-        return arr
-
-    def show_image(self,image):
-        """
-        simple function to display an image
-        """
-        im = Image.open(image)  
-        im.show()
-
+        key = {}
+        for subdir in os.listdir(training_data_dir):
+            # print name and size of each dataset
+            index=os.listdir(training_data_dir).index(subdir)
+            key[index] = subdir
+        return key
+    
 
     def format_training_data_as_h5(self,training_data_dir):
         """
@@ -110,9 +70,10 @@ class Simple_NN():
             # key[index] = subdir
             
             for image in os.listdir(training_data_dir+'/'+subdir):    
+                print(os.listdir(training_data_dir+'/'+subdir).index(image))
 
                 #if statment is only here as I didnt want to train 10k images so i limited it per category
-                if os.listdir(training_data_dir+'/'+subdir).index(image) >= 1000:
+                if os.listdir(training_data_dir+'/'+subdir).index(image) >= 10000:
                     break
                 else:            
                     x = self.resize_image(training_data_dir+'/'+subdir+'/'+image,pixel_dim)
@@ -136,18 +97,24 @@ class Simple_NN():
         hf.create_dataset('Y_train',data=Y_training_data)
         hf.close()
 
-    def get_key(self,training_data_dir):
+    def save_model_as_h5(self,model_file,w,b):
         """
-        gains dictionary to put catergories to indexes
-        -currently gathered from dir structure of your traingin data,
-        -want to store in h5 file eventually 
+        save a models params
         """
-        key = {}
-        for subdir in os.listdir(training_data_dir):
-            # print name and size of each dataset
-            index=os.listdir(training_data_dir).index(subdir)
-            key[index] = subdir
-        return key
+        hf = h5py.File(model_file,'w')
+        hf.create_dataset('w',data=w)
+        hf.create_dataset('b',data=b)
+        hf.close()
+
+    def load_h5_model(self,model_file):
+        """
+        load in a models params
+        """
+        hf = h5py.File(model_file,'r')
+        w = np.array(hf.get('w'))
+        b = np.array(hf.get('b'))
+
+        return w,b
 
     def load_h5_training_data(self,filename):
         """
@@ -160,6 +127,41 @@ class Simple_NN():
         key             = eval(key_str)
 
         return X_training_data,Y_training_data
+
+    def resize_image(self,image,size):
+        """
+        resize an image
+        """
+        img = Image.open(image)
+        img = img.resize((size,size))
+        arr = np.array(img)
+        
+        #flatten 
+        arr = arr.flatten()
+        arr = arr.reshape((size*size*3),-1)
+        return arr
+
+    def show_image(self,image):
+        """
+        simple function to display an image
+        """
+        im = Image.open(image)  
+        im.show()
+
+    def sigmoid(self,z):
+        """
+        activation function for binary outout between 0 and 1
+        - use tanh for output between -1 and 1
+        """
+        s = 1/(1+np.exp(-z))
+        return s
+
+    def relu(self,z):
+        """
+        linear activator
+        """
+        r=max(0,x)
+        return r
 
     def initalize_params_0(self,w_dim):
         """
@@ -201,13 +203,11 @@ class Simple_NN():
         """
         uses propagation in loop to optimize paramaters
         """
-
         #keep cost values to plot 
         costs = []
     
         for i in range(num_iterations):
         
-         
             cost, gradients = self.forward_backward_prop(X,Y,w,b)
             
             dw = gradients["dw"]
@@ -227,10 +227,10 @@ class Simple_NN():
             params = {"w": w,"b": b}
             gradients = {"dw": dw,"db": db}
 
-        plt.plot(cost[0],costs[1])
-        plt.xlabel('num or num_iterations')
-        plt.ylabel('cost')
-        plt.savefig('cost.png')
+        # plt.plot(costs[0],costs[1])
+        # plt.xlabel('# of iterations')
+        # plt.ylabel('Cost')
+        # plt.savefig('cost.png')
         
         return params, gradients, costs
 
@@ -264,7 +264,7 @@ class Simple_NN():
         will train model
         """
         w_dim = X_train.shape[0]
-        w,b = self.initalize_params_0(w_dim)
+        w,b   = self.initalize_params_0(w_dim)
 
         parameters,gradients,costs = self.gradient_descent(X_train,Y_train,w,b,num_iterations,learning_rate)
         
@@ -279,14 +279,13 @@ class Simple_NN():
     def test_image(self,image,w,b,image_category):
         """
         test a model with an image
-
         """
         pixel_dim=64
         X_training_data = np.empty((pixel_dim*pixel_dim*3,1))
         Y_training_data = np.empty((1,1))
 
         x_test = self.resize_image(image,pixel_dim)/255
-        key = self.get_key('dataset/bing')
+        key    = self.get_key('dataset/bing')
 
         y_val  = list(key.keys())[list(key.values()).index(image_category)]
         y_test = np.array([y_val]).T
@@ -294,6 +293,7 @@ class Simple_NN():
         print('#'*15)
         Y_prediction_test = self.preidict_output(x_test,w,b)
         acc = 100 - np.mean(np.abs(Y_prediction_test - y_test)) * 100
+
         print("test image predicted as {} with {} % accuracy".format(key[int(np.squeeze(Y_prediction_test))],acc))
         self.show_image(image)
 
