@@ -1,6 +1,8 @@
 # Simple_NN
 A small python 3 project written as a stepping stone for learning the basics of convolution neural networks for another repo [Pykadex](www.github.com/sudini1412/Pykadex). The project uses 10,000 images of cats and dogs downloaded from bing and uses them to train a simple nueral network. I have tried to write the class as flexible as possible so that it can be used to test any two categories of images not just cats and dogs.
 
+![screenshot](screenshot.png)
+
 ## Basic Method
 Using simple linear regression the program optimizes the w,b paramaters by passing forwards and backwards propagration in an iterative loop. 
 The program uses the sigmoid activation function to classisfy an image into one of two categories values (0 or 1) that refer to a dictionary. The w,b paramaters can then be reused to test the model with a supplied image. The program `run.py` calls function from a class I have written in `Simple_NN_class.py`.
