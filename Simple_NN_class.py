@@ -54,6 +54,7 @@ class Simple_NN():
         """
         converts images to a vector using hpy5
         """
+        print('loading training data')
         pixel_dim=64
         X_training_data = np.empty((pixel_dim*pixel_dim*3,1))
         Y_training_data = np.empty((1,1))
@@ -69,7 +70,7 @@ class Simple_NN():
             # print name and size of each dataset
             print (subdir,len(os.listdir(training_data_dir+'/'+subdir)))
 
-            index=os.listdir(training_data_dir).index(subdir)
+            index = os.listdir(training_data_dir).index(subdir)
             # key[index] = subdir
             
             for image in os.listdir(training_data_dir+'/'+subdir):    
@@ -81,6 +82,7 @@ class Simple_NN():
                 else:            
                     x = self.resize_image(training_data_dir+'/'+subdir+'/'+image,pixel_dim)
                     X_training_data = np.column_stack((X_training_data, x))
+
                     y = np.array([index]).T
                     Y_training_data = np.column_stack((Y_training_data, y))
                     
@@ -99,6 +101,7 @@ class Simple_NN():
         hf.create_dataset('X_train',data=X_training_data)
         hf.create_dataset('Y_train',data=Y_training_data)
         hf.close()
+        print('training data loaded')
 
     def save_model_as_h5(self,model_file,w,b):
         """
@@ -106,7 +109,7 @@ class Simple_NN():
         """
         if not os.path.exists('h5_files'):
             os.makedirs('h5_files')
-            
+
         hf = h5py.File(model_file,'w')
         hf.create_dataset('w',data=w)
         hf.create_dataset('b',data=b)
@@ -116,9 +119,11 @@ class Simple_NN():
         """
         load in a models params
         """
+        print('loading model paramas')
         hf = h5py.File(model_file,'r')
-        w = np.array(hf.get('w'))
-        b = np.array(hf.get('b'))
+        w  = np.array(hf.get('w'))
+        b  = np.array(hf.get('b'))
+        print('model paramas loaded')
 
         return w,b
 
@@ -126,7 +131,7 @@ class Simple_NN():
         """
         unpacks h5 data files
         """
-        hf = h5py.File(filename, 'r')
+        hf              = h5py.File(filename, 'r')
         X_training_data = np.array(hf.get('X_train'))
         Y_training_data = np.array(hf.get('Y_train'))
         key_str         = str(hf.get('Key'))
@@ -166,7 +171,7 @@ class Simple_NN():
         """
         linear activator
         """
-        r=max(0,x)
+        r = max(0,x)
         return r
 
     def initalize_params_0(self,w_dim):
@@ -181,9 +186,29 @@ class Simple_NN():
         """
         computes the cost
         """
-        m = X.shape[1]
+        m    = X.shape[1]
         cost = (-1/m)*(np.sum((Y*np.log(A))+(1-Y)*np.log(1-A))) 
         return cost
+
+
+    def forward_prop(self,X,Y,w,b):
+        """
+        forward prop
+        """
+        m    = X.shape[1]
+        z    = np.dot(w.T,X)+b
+        A    = self.sigmoid(z)
+        cost = self.cost_function(X,Y,A)
+        return A,cost
+
+    def back_prop(self,X,Y,A):
+        """
+        back prop
+        """
+        m  = X.shape[1]
+        dw = (1/m)*np.dot(X,((A-Y).T))
+        db = (1/m)*np.sum((A-Y))
+        return dw,db
 
     def forward_backward_prop(self,X,Y,w,b):
         """
@@ -192,13 +217,10 @@ class Simple_NN():
         m = X.shape[1]
 
         #forward prop
-        z    = np.dot(w.T,X)+b
-        A    = self.sigmoid(z)
-        cost = self.cost_function(X,Y,A)
+        A,cost = self.forward_prop(X,Y,w,b)
 
         #back prop
-        dw    = (1/m)*np.dot(X,((A-Y).T))
-        db    = (1/m)*np.sum((A-Y))
+        dw,db = self.back_prop(X,Y,A)
 
         #save gradients for future use
         gradients = {"dw": dw,"db": db}
@@ -222,15 +244,13 @@ class Simple_NN():
             # update params using the learning rate
             w = w - learning_rate*dw
             b = b - learning_rate*db
-       
         
             # save costs values every 100 vals
             if i % 100 == 0:
                 costs.append([i,cost])
-        
     
             #save prarams and gradients for future use
-            params = {"w": w,"b": b}
+            params    = {"w": w,"b": b}
             gradients = {"dw": dw,"db": db}
 
         # plt.plot(costs[0],costs[1])
@@ -263,7 +283,6 @@ class Simple_NN():
                 Y_prediction[0][i] = 1
 
         return Y_prediction
-
 
     def model(self,X_train,Y_train,num_iterations=2000,learning_rate=0.5):
         """

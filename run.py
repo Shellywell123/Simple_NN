@@ -12,11 +12,11 @@ nn = Simple_NN()
 #nn.format_training_data_as_h5('dataset/bing','h5_files/training_data.h5')
 
 # load training data in from .h5 file
-#X_training_data,Y_training_data=nn.load_h5_training_data('h5_files/training_data.h5')
+X_training_data,Y_training_data=nn.load_h5_training_data('h5_files/training_data.h5')
 
 # generate model and save params for testing the model
-#w,b =nn.model(X_training_data,Y_training_data,num_iterations=2000,learning_rate=0.5)
-#nn.save_model_as_h5('h5_files/model_10k.h5',w,b)
+w,b =nn.model(X_training_data,Y_training_data,num_iterations=2000,learning_rate=0.5)
+nn.save_model_as_h5('h5_files/model_10k.h5',w,b)
 
 # load in model params
 w,b = nn.load_h5_model('h5_files/model_10k.h5')
