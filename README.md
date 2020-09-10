@@ -10,11 +10,7 @@ The program uses the sigmoid activation function to classisfy an image into one 
 ## Install
 ```bash
 foo@bar:~$ git clone https://github.com/Shellywell123/Simple_NN
-```
-```bash
 foo@bar:~$ cd Simple_NN/
-```
-```bash
 foo@bar:~$ pip3 install -r requirements.txt
 ```
 
@@ -28,9 +24,9 @@ The code in its current state does not download the training data nor is the dat
 
 #### 1st install bing_image_downloader fork
 ```bash
-git clone https://github.com/Shellywell123/bing_image_downloader.git
-cd bing_image_downloader
-python3 setup.py install
+foo@bar:~$ git clone https://github.com/Shellywell123/bing_image_downloader.git
+foo@bar:~$ cd bing_image_downloader
+foo@bar:~$ python3 setup.py install
 ```
 
 #### 2nd Call the `download_training_data()` funtion
