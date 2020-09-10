@@ -26,20 +26,17 @@ foo@bar:~$ python3 -W ignore run.py
 ## For downloading and formating training data
 The code in its current state does not download the training data nor is the data stored on the git, due to file size restrictions. However this can easily be done with supplied code in a few steps.\\
 
-#### 1st install bing_image_downloader v1.0.2
+#### 1st clone bing_image_downloader fork
 ```bash
-foo@bar:~$ pip3 install bing_image_downloader==1.0.2
+foo@bar:~$ git clone https://github.com/Shellywell123/bing_image_downloader.git
 ```
-#### 2nd replace bing.py file in the package
-the location of the package can be found by the command:
-```bash
-foo@bar:~$ pip3 show bing_image downloader
+#### 2nd set the path in `Simple_NN_class.py` for your own machine:
+```py
+bing_fork_location = 'path/to/cloned/fork/'
 ```
-Open the `dir` in which the `bing_imaage_downloader` is stored in and replace the `bing.py` file with `replacement_bing1-0-2.py.` 
-
 #### 3rd Call the `download_training_data()` funtion
 Then uncomment and run the following code in `run.py.`
-```python
+```py
 nn = Simple_NN()
 
 # download training data from bing
@@ -52,7 +49,7 @@ nn.format_training_data_as_h5('dataset/bing','h5_files/training_data.h5')
 ```
 
 ## For importing training data and making/saving a model
-```python
+```py
 nn = Simple_NN()
 # load training data in from .h5 file
 X_training_data,Y_training_data=nn.load_h5_training_data('h5_files/training_data.h5')
@@ -63,7 +60,7 @@ nn.save_model_as_h5('h5_files/model_10k.h5',w,b)
 ```
 
 ## For loading and testing a model
-```python
+```py
 nn = Simple_NN()
 # load in model params
 w,b = nn.load_h5_model('h5_files/model_10k.h5')

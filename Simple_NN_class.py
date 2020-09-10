@@ -7,6 +7,8 @@ import scipy
 import h5py
 import os
 
+bing_fork_location = '/mnt/c/Users/benja/Documents/Programming/Python Projects/bing_image_downloader'
+
 ###########################################
 # Start of class
 ###########################################
@@ -26,6 +28,8 @@ class Simple_NN():
         """
         uses bing_image_downloader==1-0-2 to download images 
         """
+        
+        sys.path.append(bing_fork_location)
         from bing_image_downloader import downloader
         
         lim        = str(num_of_images_per_category)
@@ -104,6 +108,7 @@ class Simple_NN():
         """
         save a models params
         """
+        print('saving model paramas ...')
         if not os.path.exists('h5_files'):
             os.makedirs('h5_files')
 
@@ -111,6 +116,7 @@ class Simple_NN():
         hf.create_dataset('w',data=w)
         hf.create_dataset('b',data=b)
         hf.close()
+        print('model paramas saved')
 
     def load_h5_model(self,model_file):
         """
@@ -318,7 +324,6 @@ class Simple_NN():
         #plt.savefig('cost.png')
         
         return params, gradients, costs
-
 
     def preidict_output(self,X,w,b):
         """
