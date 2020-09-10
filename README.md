@@ -26,15 +26,14 @@ foo@bar:~$ python3 -W ignore run.py
 ## For downloading and formating training data
 The code in its current state does not download the training data nor is the data stored on the git, due to file size restrictions. However this can easily be done with supplied code in a few steps.\\
 
-#### 1st clone bing_image_downloader fork
+#### 1st install bing_image_downloader fork
 ```bash
-foo@bar:~$ git clone https://github.com/Shellywell123/bing_image_downloader.git
+git clone https://github.com/Shellywell123/bing_image_downloader.git
+cd bing_image_downloader
+python3 setup.py install
 ```
-#### 2nd set the path in `Simple_NN_class.py` for your own machine:
-```py
-bing_fork_location = 'path/to/cloned/fork/'
-```
-#### 3rd Call the `download_training_data()` funtion
+
+#### 2nd Call the `download_training_data()` funtion
 Then uncomment and run the following code in `run.py.`
 ```py
 nn = Simple_NN()
