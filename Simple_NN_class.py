@@ -49,18 +49,16 @@ class Simple_NN():
             key[index] = subdir
         return key
     
-
     def format_training_data_as_h5(self,training_data_dir,filename):
         """
         converts images to a vector using hpy5
         """
-        print('loading training data')
+        print('loading training data ...')
         pixel_dim=64
         X_training_data = np.empty((pixel_dim*pixel_dim*3,1))
         Y_training_data = np.empty((1,1))
 
         #print(X_training_data,Y_training_data)
-
         #key = {}
 
         if not os.path.exists('h5_files'):
@@ -77,7 +75,7 @@ class Simple_NN():
                 print(os.listdir(training_data_dir+'/'+subdir).index(image))
 
                 #if statment is only here as I didnt want to train 10k images so i limited it per category
-                if os.listdir(training_data_dir+'/'+subdir).index(image) >= 10000:
+                if os.listdir(training_data_dir+'/'+subdir).index(image) >= 100:
                     break
                 else:            
                     x = self.resize_image(training_data_dir+'/'+subdir+'/'+image,pixel_dim)
@@ -86,7 +84,6 @@ class Simple_NN():
                     y = np.array([index]).T
                     Y_training_data = np.column_stack((Y_training_data, y))
                     
-                
         #deletes first empty data set that was created when the array was initalised
         X_training_data = np.delete(X_training_data,0,1)
         Y_training_data = np.delete(Y_training_data,0,1)
@@ -119,7 +116,7 @@ class Simple_NN():
         """
         load in a models params
         """
-        print('loading model paramas')
+        print('loading model paramas ...')
         hf = h5py.File(model_file,'r')
         w  = np.array(hf.get('w'))
         b  = np.array(hf.get('b'))
@@ -131,11 +128,13 @@ class Simple_NN():
         """
         unpacks h5 data files
         """
+        print('loading training data ...')
         hf              = h5py.File(filename, 'r')
         X_training_data = np.array(hf.get('X_train'))
         Y_training_data = np.array(hf.get('Y_train'))
         key_str         = str(hf.get('Key'))
         key             = eval(key_str)
+        print('training data loaded')
 
         return X_training_data,Y_training_data
 
@@ -174,12 +173,64 @@ class Simple_NN():
         r = max(0,x)
         return r
 
-    def initalize_params_0(self,w_dim):
+    def initalize_params(self,w_dim,initalization='Zero'):
         """
         initialises w,b to be zero
+        INCOMPLETE
         """
-        w = np.zeros((w_dim,1))
-        b = 0
+        if initalization == 'Zero':
+                w = np.zeros((w_dim,1))
+                b = 0
+
+        if initalization == 'Random':
+            pass
+
+        return w,b
+
+    def update_params(self,w,b,dw,db,learning_rate,optimization='None'):
+        """
+        updates params
+        INCOMPLETE
+        """
+        if optimization == 'None':
+            w = w - learning_rate*dw
+            b = b - learning_rate*db
+
+        if optimization == 'Adam':
+            E     = 1e-8
+            beta1 = 
+            beta2 =
+
+            Sdw = (beta2*Sdw+(1-beta2)*dw**2)/(1-beta2)
+            Sdb = (beta2*Sdb+(1-beta2)*db**2)/(1-beta2)
+            Vdw = (beta1*Vdw+(1-beta1)*dw)/(1-beta1)
+            Vdb = (beta1*Vdb+(1-beta1)*db)/(1-beta1)
+
+            w = w - learning_rate*(Vdw/np.sqrt(Sdw + E))
+            b = b - learning_rate*(Vdb/np.sqrt(Sdb + E))
+
+        if optimization == 'RMS':
+            E     = 1e-8
+            beta1 = 
+            beta2 =
+
+            Sdw = (beta2*Sdw+(1-beta2)*dw**2)/(1-beta2)
+            Sdb = (beta2*Sdb+(1-beta2)*db**2)/(1-beta2)
+
+            w = w - learning_rate*Sdw
+            b = b - learning_rate*Sdb
+
+        if optimization == 'Momentum':
+            E     = 1e-8
+            beta1 = 
+            beta2 =
+
+            Vdw = (beta1*Vdw+(1-beta1)*dw)/(1-beta1)
+            Vdb = (beta1*Vdb+(1-beta1)*db)/(1-beta1)
+
+            w = w - learning_rate*Vdw
+            b = b - learning_rate*Vdb
+
         return w,b
 
     def cost_function(self,X,Y,A):
@@ -190,15 +241,21 @@ class Simple_NN():
         cost = (-1/m)*(np.sum((Y*np.log(A))+(1-Y)*np.log(1-A))) 
         return cost
 
-
-    def forward_prop(self,X,Y,w,b):
+    def forward_prop(self,X,Y,w,b,regularization='None'):
         """
         forward prop
+        INCOMPLETE
         """
+        if regularization == 'None':
+            reg = 0
+
+        if regularization == 'L2':
+            pass
+
         m    = X.shape[1]
         z    = np.dot(w.T,X)+b
         A    = self.sigmoid(z)
-        cost = self.cost_function(X,Y,A)
+        cost = self.cost_function(X,Y,A) + reg
         return A,cost
 
     def back_prop(self,X,Y,A):
@@ -237,26 +294,28 @@ class Simple_NN():
         for i in range(num_iterations):
         
             cost, gradients = self.forward_backward_prop(X,Y,w,b)
+
+            # save costs values every 100 vals
+            if i % 100 == 0:
+                costs.append([i,cost])
             
             dw = gradients["dw"]
             db = gradients["db"]
         
             # update params using the learning rate
-            w = w - learning_rate*dw
-            b = b - learning_rate*db
-        
-            # save costs values every 100 vals
-            if i % 100 == 0:
-                costs.append([i,cost])
+            self.update_params(w,b,dw,db,learning_rate)
+            
     
             #save prarams and gradients for future use
-            params    = {"w": w,"b": b}
+            params    = { "w":  w, "b":  b}
             gradients = {"dw": dw,"db": db}
 
-        # plt.plot(costs[0],costs[1])
-        # plt.xlabel('# of iterations')
-        # plt.ylabel('Cost')
-        # plt.savefig('cost.png')
+        # ax = plt.figure()
+        # ax.scatter(costs[0],costs[1])
+        # ax.xlabel('# of iterations')
+        # ax.ylabel('Cost')
+        # plt.show()
+        #plt.savefig('cost.png')
         
         return params, gradients, costs
 
@@ -288,8 +347,9 @@ class Simple_NN():
         """
         will train model
         """
+        print('training model ...')
         w_dim = X_train.shape[0]
-        w,b   = self.initalize_params_0(w_dim)
+        w,b   = self.initalize_params(w_dim)
 
         parameters,gradients,costs = self.gradient_descent(X_train,Y_train,w,b,num_iterations,learning_rate)
         
@@ -298,7 +358,7 @@ class Simple_NN():
 
         Y_prediction_train = self.preidict_output(X_train,w,b)
         print("train accuracy: {} %".format(100 - np.mean(np.abs(Y_prediction_train - Y_train)) * 100))
-
+        print('model trained')
         return w,b
 
     def test_image(self,image,w,b,image_category):
