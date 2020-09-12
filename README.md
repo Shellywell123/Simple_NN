@@ -1,5 +1,5 @@
 # Simple_NN
-A small Python 3 project written as a stepping stone for learning the basics of convolution neural networks from first principles for another repo [Pykadex](https://github.com/Sudini1412/PykaDex). The project uses 10,000 images of cats and dogs downloaded from bing and uses them to train a simple nueral network. I have tried to write the class as flexible as possible so that it can be used to test any two categories of images not just cats and dogs.
+A small Python 3 project written as a stepping stone for learning the basics of convolution neural networks from first principles for another repo [Pykadex](https://github.com/Sudini1412/PykaDex). The project uses 10,000 images of cats and dogs downloaded from bing and uses them to train a simple nueral network. I have tried to write the class as flexible as possible so that it can be used to test any two categories of images not just cats and dogs. The code is currently very messy as have been chasing multiple bugs.
 
 ![screenshot](test_images/test_image.jpg)
 ```

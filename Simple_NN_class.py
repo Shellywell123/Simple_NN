@@ -104,7 +104,7 @@ class Simple_NN():
         hf.close()
         print('training data loaded')
 
-    def save_model_as_h5(self,model_file,w,b):
+    def save_model_as_h5(self,model_file,params):
         """
         save a models params
         """
@@ -112,9 +112,12 @@ class Simple_NN():
         if not os.path.exists('h5_files'):
             os.makedirs('h5_files')
 
+        L = len(params)//2
+
         hf = h5py.File(model_file,'w')
-        hf.create_dataset('w',data=w)
-        hf.create_dataset('b',data=b)
+        for key in list(params.keys()):
+            hf.create_dataset(key,data=np.array(params[key]))
+            hf.create_dataset(key,data=np.array(params[key]))
         hf.close()
         print('model paramas saved')
 
@@ -124,11 +127,14 @@ class Simple_NN():
         """
         print('loading model paramas ...')
         hf = h5py.File(model_file,'r')
-        w  = np.array(hf.get('w'))
-        b  = np.array(hf.get('b'))
+        L = len(hf.keys())//2
+        params = {}
+        for l in range(1,L):
+            params['W'+str(l)]  = np.array(hf.get('W'+str(l)))
+            params['b'+str(l)] = np.array(hf.get('b'+str(l)))
         print('model paramas loaded')
 
-        return w,b
+        return params
 
     def load_h5_training_data(self,filename):
         """
@@ -176,146 +182,229 @@ class Simple_NN():
         """
         linear activator
         """
-        r = max(0,x)
+        r = np.maximum(0,z)
         return r
 
-    def initalize_params(self,w_dim,initalization='Zero'):
+    def initalize_params(self,layer_dims,initalization='Zero'):
         """
         initialises w,b to be zero
         INCOMPLETE
         """
+        # layers dims = num of nodes in each dim, each layer in a list
+
+        params = {}
+        L = len(layer_dims)            # integer representing the number of layers
+    
         if initalization == 'Zero':
-                w = np.zeros((w_dim,1))
-                b = 0
+            for l in range(1, L):
+                params['W' + str(l)] = np.zeros((layer_dims[l],layer_dims[l-1]))
+                params['b' + str(l)] = np.zeros((layer_dims[l],1))
+
+                print('W'+str(l),params["W" + str(l)].shape)
+                print('b'+str(l),params["b" + str(l)].shape)
 
         if initalization == 'Random':
             pass
 
-        return w,b
+        return params
 
-    def update_params(self,w,b,dw,db,learning_rate,optimization='None'):
+    def update_params(self,params,grads,learning_rate,optimization='None'):
         """
         updates params
         INCOMPLETE
         """
-        if optimization == 'None':
-            w = w - learning_rate*dw
-            b = b - learning_rate*db
+        L = len(params) // 2
 
-        if optimization == 'Adam':
-            E     = 1e-8
-            beta1 = 
-            beta2 =
+        for l in range(1,L):
+            params["W" + str(l+1)] = params["W" + str(l+1)] - learning_rate*grads["dW" + str(l+1)]
+            params["b" + str(l+1)] = params["b" + str(l+1)] - learning_rate*grads["db" + str(l+1)]
 
-            Sdw = (beta2*Sdw+(1-beta2)*dw**2)/(1-beta2)
-            Sdb = (beta2*Sdb+(1-beta2)*db**2)/(1-beta2)
-            Vdw = (beta1*Vdw+(1-beta1)*dw)/(1-beta1)
-            Vdb = (beta1*Vdb+(1-beta1)*db)/(1-beta1)
 
-            w = w - learning_rate*(Vdw/np.sqrt(Sdw + E))
-            b = b - learning_rate*(Vdb/np.sqrt(Sdb + E))
+        
+        # if optimization == 'None':
+        #     w = w - learning_rate*dw
+        #     b = b - learning_rate*db
 
-        if optimization == 'RMS':
-            E     = 1e-8
-            beta1 = 
-            beta2 =
+        # if optimization == 'Adam':
+        #     E     = 1e-8
+        #     beta1 = 0
+        #     beta2 = 0
 
-            Sdw = (beta2*Sdw+(1-beta2)*dw**2)/(1-beta2)
-            Sdb = (beta2*Sdb+(1-beta2)*db**2)/(1-beta2)
+        #     Sdw = (beta2*Sdw+(1-beta2)*dw**2)/(1-beta2)
+        #     Sdb = (beta2*Sdb+(1-beta2)*db**2)/(1-beta2)
+        #     Vdw = (beta1*Vdw+(1-beta1)*dw)/(1-beta1)
+        #     Vdb = (beta1*Vdb+(1-beta1)*db)/(1-beta1)
 
-            w = w - learning_rate*Sdw
-            b = b - learning_rate*Sdb
+        #     w = w - learning_rate*(Vdw/np.sqrt(Sdw + E))
+        #     b = b - learning_rate*(Vdb/np.sqrt(Sdb + E))
 
-        if optimization == 'Momentum':
-            E     = 1e-8
-            beta1 = 
-            beta2 =
+        # if optimization == 'RMS':
+        #     E     = 1e-8
+        #     beta1 = 0
+        #     beta2 = 0
 
-            Vdw = (beta1*Vdw+(1-beta1)*dw)/(1-beta1)
-            Vdb = (beta1*Vdb+(1-beta1)*db)/(1-beta1)
+        #     Sdw = (beta2*Sdw+(1-beta2)*dw**2)/(1-beta2)
+        #     Sdb = (beta2*Sdb+(1-beta2)*db**2)/(1-beta2)
 
-            w = w - learning_rate*Vdw
-            b = b - learning_rate*Vdb
+        #     w = w - learning_rate*Sdw
+        #     b = b - learning_rate*Sdb
 
-        return w,b
+        # if optimization == 'Momentum':
+        #     E     = 1e-8
+        #     beta1 = 0
+        #     beta2 = 0
 
-    def cost_function(self,X,Y,A):
+        #     Vdw = (beta1*Vdw+(1-beta1)*dw)/(1-beta1)
+        #     Vdb = (beta1*Vdb+(1-beta1)*db)/(1-beta1)
+
+        #     w = w - learning_rate*Vdw
+        #     b = b - learning_rate*Vdb
+
+        return params
+
+    def cost_function(self,Y,AL):
         """
         computes the cost
         """
-        m    = X.shape[1]
-        cost = (-1/m)*(np.sum((Y*np.log(A))+(1-Y)*np.log(1-A))) 
+        m    = Y.shape[1]
+        cost = (-1/m)*(np.sum((Y*np.log(AL))+(1-Y)*np.log(1-AL)))
+
         return cost
 
-    def forward_prop(self,X,Y,w,b,regularization='None'):
+    def sigmoid_rev(self,Z,dA):
+        """
+        INCOMPLETE
+        """
+        A = self.sigmoid(Z) 
+        return dA * (A*(1 - A))
+
+    def relu_rev(self,Z):
+        """
+        INCOMPLETE
+        """
+        dZ = np.heaviside(Z, 1)
+        return dZ
+
+    def lin_rev(self,params,dZ,A_pre):
+        """
+        INCOMPLETE
+        """
+        m = A_pre.shape[1]
+        W = params['w']
+        b = params['b']
+
+        dw = (1/m)*np.dot(dZ,A_pre.T)
+        db = (1/m)*np.sum(dZ,axis=1,keepdims=True)
+        dA_pre = np.dot(W.T,dZ)
+
+        return dA_pre,dw,db
+
+    def forward_prop(self,X,params):
         """
         forward prop
         INCOMPLETE
         """
-        if regularization == 'None':
-            reg = 0
 
-        if regularization == 'L2':
-            pass
+        Z_cache = {}
+        A_cache = {}
 
-        m    = X.shape[1]
-        z    = np.dot(w.T,X)+b
-        A    = self.sigmoid(z)
-        cost = self.cost_function(X,Y,A) + reg
-        return A,cost
+        L = len(params) // 2
 
-    def back_prop(self,X,Y,A):
+       # m = X.shape[1]        
+        A = X
+        for l in range(1,L):
+            print('A'+str(l-1),A.shape)
+            w = params['W'+str(l)]
+            b = params['b'+str(l)]
+            z = np.dot(w,A)+b
+            A = self.relu(z)
+            print('Z'+str(l),z.shape)
+            Z_cache['Z'+str(l)]=z
+            A_cache['A'+str(l-1)]=A
+
+
+        #final activation
+        wL=params['W'+str(L)]
+        bL=params['b'+str(L)]
+
+        zL  = np.dot(wL,A)+bL
+        AL  = self.sigmoid(zL)
+        print('AL',AL.shape)
+
+        Z_cache['Z'+str(L)]=zL
+        A_cache['A'+str(L)]=AL
+
+        return Z_cache, A_cache
+
+    def back_prop(self,X,Y,params,Z_cache,A_cache):
         """
         back prop
+        working backwards through the nn 
+        so sigmoid then relus
         """
-        m  = X.shape[1]
-        dw = (1/m)*np.dot(X,((A-Y).T))
-        db = (1/m)*np.sum((A-Y))
-        return dw,db
+        L = len(params)//2
+        AL = A_cache['A'+str(L)]
+        print('YL',Y.shape)
+        #Y = Y.reshape(AL.shape)
 
-    def forward_backward_prop(self,X,Y,w,b):
-        """
-        carries out forward and backwards propagation 
-        """
-        m = X.shape[1]
+        gradients = {}
 
-        #forward prop
-        A,cost = self.forward_prop(X,Y,w,b)
+        dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
 
-        #back prop
-        dw,db = self.back_prop(X,Y,A)
+        ZL = Z_cache['Z'+str(L)]
+        dZL = self.sigmoid_rev(ZL,dAL)
+        print('dZL',dZL.shape)
 
-        #save gradients for future use
-        gradients = {"dw": dw,"db": db}
+        params_= {}
+        params_['w'] = params['W'+str(L)]
+        params_['b'] = params['b'+str(L)]
 
-        return cost,gradients
+        gradients['dA'+str(L-1)],gradients['dW'+str(L)],gradients['db'+str(L)] = self.lin_rev(params_,dZL,AL)
+        
+        for l in reversed(range(L-1)):
+            
+            params_={}
+            params_['w'] = params['W'+str(l+1)]
+            params_['b'] = params['b'+str(l+1)]
+            Z = Z_cache['Z'+str(l+1)]
+            dZ = self.relu_rev(Z)#?
+            print('dZ'+str(l),dZ.shape)
+            A = A_cache['A'+str(l)]
+            gradients['dA'+str(l)],gradients['dW'+str(l+1)],gradients['db'+str(l+1)] = self.lin_rev(params_,dZ,A)
+            print('db'+str(l+1),gradients['db'+str(l+1)].shape)
+            print('dW'+str(l+1),gradients['dW'+str(l+1)].shape)
 
-    def gradient_descent(self,X,Y,w,b,num_iterations,learning_rate):
+        return gradients
+
+    def gradient_descent(self,X,Y,params,epochs,learning_rate):
         """
         uses propagation in loop to optimize paramaters
         """
-        #keep cost values to plot 
+
         costs = []
+        print('x',X.shape)
     
-        for i in range(num_iterations):
+        for i in range(epochs):
+            print('\nepoch {}'.format(i+1))
+            #print(params)
         
-            cost, gradients = self.forward_backward_prop(X,Y,w,b)
+            #forward prop
+            Z_cache, A_cache = self.forward_prop(X,params)
+
+            AL = A_cache['A'+str(len(params)//2)]
+            cost = self.cost_function(Y,AL) 
+            #print('cost-'+str(i+1),cost)
+
+            #back prop
+            gradients = self.back_prop(X,Y,params,Z_cache,A_cache)
 
             # save costs values every 100 vals
             if i % 100 == 0:
                 costs.append([i,cost])
-            
-            dw = gradients["dw"]
-            db = gradients["db"]
         
             # update params using the learning rate
-            self.update_params(w,b,dw,db,learning_rate)
+            params = self.update_params(params,gradients,learning_rate)
             
-    
-            #save prarams and gradients for future use
-            params    = { "w":  w, "b":  b}
-            gradients = {"dw": dw,"db": db}
-
         # ax = plt.figure()
         # ax.scatter(costs[0],costs[1])
         # ax.xlabel('# of iterations')
@@ -325,7 +414,7 @@ class Simple_NN():
         
         return params, gradients, costs
 
-    def preidict_output(self,X,w,b):
+    def predict_output(self,X,params):
         """
         predicts binary label
         """
@@ -334,9 +423,21 @@ class Simple_NN():
         #initalise output as 0
         Y_prediction = np.zeros((1,m))
 
-        z = np.dot(w.T,X)+b
-        A = self.sigmoid(z)
+        L = len(params)//2
 
+        A = X
+
+        for l in range(1,L):
+            w = params['W'+str(l)]
+            b = params['b'+str(l)]
+            z = np.dot(w,A)+b
+            A = self.relu(z)
+
+        w=params['W'+str(L)]
+        b=params['b'+str(L)]
+
+        z  = np.dot(w,A)+b
+        A  = self.sigmoid(z)
         #round values to be binary 
         for i in range(A.shape[1]):
 
@@ -348,25 +449,25 @@ class Simple_NN():
 
         return Y_prediction
 
-    def model(self,X_train,Y_train,num_iterations=2000,learning_rate=0.5):
+    def model(self,X_train,Y_train,layer_dims,epochs=2000,learning_rate=0.5):
         """
         will train model
         """
         print('training model ...')
-        w_dim = X_train.shape[0]
-        w,b   = self.initalize_params(w_dim)
+        m  = X_train.shape[0]
+        params = self.initalize_params(layer_dims)
 
-        parameters,gradients,costs = self.gradient_descent(X_train,Y_train,w,b,num_iterations,learning_rate)
+        parameters,gradients,costs = self.gradient_descent(X_train,Y_train,params,epochs,learning_rate)
         
-        w = parameters["w"]
-        b = parameters["b"]
+        # w = parameters["w"]
+        # b = parameters["b"]
 
-        Y_prediction_train = self.preidict_output(X_train,w,b)
+        Y_prediction_train = self.predict_output(X_train,parameters)
         print("train accuracy: {} %".format(100 - np.mean(np.abs(Y_prediction_train - Y_train)) * 100))
         print('model trained')
-        return w,b
+        return parameters
 
-    def test_image(self,image,w,b,image_category):
+    def test_image(self,image,params,image_category):
         """
         test a model with an image
         """
@@ -381,7 +482,7 @@ class Simple_NN():
         y_test = np.array([y_val]).T
 
         print('#'*15)
-        Y_prediction_test = self.preidict_output(x_test,w,b)
+        Y_prediction_test = self.predict_output(x_test,params)
         acc = 100 - np.mean(np.abs(Y_prediction_test - y_test)) * 100
 
         print("test image predicted as {} with {} % accuracy".format(key[int(np.squeeze(Y_prediction_test))],acc))

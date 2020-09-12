@@ -15,12 +15,18 @@ nn = Simple_NN()
 X_training_data,Y_training_data=nn.load_h5_training_data('h5_files/training_data.h5')
 
 # generate model and save params for testing the model
-w,b =nn.model(X_training_data,Y_training_data,num_iterations=2000,learning_rate=0.5)
-nn.save_model_as_h5('h5_files/model_10k.h5',w,b)
+params =nn.model(X_training_data,Y_training_data,layer_dims=[12288,100,1],epochs=10,learning_rate=0.5)
+#print(params)
+#nn.save_model_as_h5('h5_files/model.h5',params)
 
 # load in model params
-w,b = nn.load_h5_model('h5_files/model_10k.h5')
-
+#params = nn.load_h5_model('h5_files/model.h5')
+#print (params)
 # test model with images
-nn.test_image('test_images/test_image.jpg', w,b,'Cat')
-nn.test_image('test_images/test_image3.jpg',w,b,'Dog')
+nn.test_image('test_images/test_image.jpg', params,'Cat')
+nn.test_image('test_images/test_image3.jpg',params,'Dog')
+
+#TODO
+#save dictoinaires to h5 
+#clean all
+#make test/dev set to do bias and variance tests
